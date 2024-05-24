@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat</title>
+    <link rel="stylesheet" href="../static/styles.css">
+    <script src="../static/app.js"></script>
+</head>
+<body>
+    <div id="container">
+        <div id="display">
+            <div id="output"></div>
+        </div>
+        <div id="bar">
+            <input type="text" id="messageInput" placeholder="Type a message" onkeypress="checkEnter(event)" oninput="toggleSendButton()">
+            <button id="sendButton" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+</body>
+</html>

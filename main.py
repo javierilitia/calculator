@@ -1,50 +1,60 @@
-﻿from fastapi import FastAPI, Response, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+﻿from fastapi import FastAPI, WebSocket
 
-class Calculator():
-    def __init__(self):
-        pass
-    
-    def add(self, num1: float, num2: float) -> float:
-        return num1 + num2
-
-    def subtract(self, num1: float, num2: float) -> float:
-        return num1 - num2
-    
-class Operation(BaseModel):
-    operation: str
-    num1: float
-    num2: float
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from fastapi.requests import Request
 
 app = FastAPI()
 
+# Montar la carpeta static
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Configurar Jinja2Templates
+templates = Jinja2Templates(directory="templates")
+from typing import List
+
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.responses import HTMLResponse
+from fastapi.middleware.cors import CORSMiddleware
+from datetime import datetime
+import json
+# Dictionary to store connected WebSocket clients
+connected_users = {}
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # can alter with time
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    allow_credentials=True,
 )
 
 @app.get("/")
-def read_root():
-    return {"Hello": "World"}
-@app.get("/api/v1/about")
-def version() -> Response:
-    return "Version v0.0.01"
-@app.get("/api/v1/add/{num1}/{num2}")
-async def add(num1: float, num2: float) -> Response:
-    calc = Calculator()
-    result = calc.add(num1, num2)
-    return {"operation": "addition", "num1": num1, "num2": num2, "result": result}
-@app.post("/api/v1/calculator")
-async def calculate(operation: Operation) -> Response:
-    calc = Calculator()
-    if operation.operation == "add":
-        result = calc.add(operation.num1, operation.num2)
-    elif operation.operation == "subtract":
-        result = calc.subtract(operation.num1, operation.num2)
-    else:
-        raise HTTPException(status_code=400, detail="Invalid operation. Use 'add' or 'subtract'.")
-    return {"operation": operation.operation, "num1": operation.num1, "num2": operation.num2, "result": result}
+async def read_root(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request, "title": "Home Page"})
+
+
+@app.websocket("/ws/{user_id}")
+async def websocket_endpoint(user_id: str, websocket: WebSocket):
+    await websocket.accept()
+
+    # Store the WebSocket connection in the dictionary
+    connected_users[user_id] = websocket
+
+    try:
+        while True:
+            data = await websocket.receive_text()
+            # Send the received data to the other user
+            message = json.dumps({"user": user_id, "data": data})
+            for user, user_ws in connected_users.items():
+                if user != user_id:
+                    await user_ws.send_text(message)
+    except:
+        # If a user disconnects, remove them from the dictionary
+        del connected_users[user_id]
+        await websocket.close()
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=8000)
