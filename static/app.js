@@ -1,7 +1,7 @@
 const userId = prompt("Enter your nickname");
 
 const ws = new WebSocket(
-  `ws://calculator-api-python.azurewebsites.net/ws/${userId}`
+  `wss://calculator-api-python.azurewebsites.net/ws/${userId}`
 );
 
 ws.onmessage = function (event) {
