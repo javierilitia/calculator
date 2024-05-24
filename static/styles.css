@@ -1,3 +1,7 @@
+body {
+    overflow: hidden;
+}
+
 #container {
     display: flex;
     flex-direction: column;
@@ -7,13 +11,14 @@
     align-items: center;
     justify-content: center;
 }
-#display {
+#chat {
     display: flex;
     flex-direction: column;
     width: 100%;
     max-width: 600px;
     height: 50%;
     overflow: hidden;
+    border: 1px solid #d3d5ff;
 }
 #output {
     display: flex;
@@ -83,4 +88,22 @@
     width: 100%;
     max-width: 600px;
     overflow: hidden;
+}
+
+#randomImage1,
+#randomImage2,
+#randomImage3,
+#randomImage4,
+#randomImage5,
+#randomImage6,
+#randomImage7,
+#randomImage8,
+#randomImage9,
+#randomImage10,
+#randomImage11,
+#randomImage12 {
+
+    position: absolute;
+    display: none; /* Inicialmente ocultas */
+    transition: opacity 0.5s ease;
 }

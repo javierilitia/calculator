@@ -1,19 +1,35 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Chat</title>
     <link rel="stylesheet" href="../static/styles.css">
     <script src="../static/app.js"></script>
 </head>
+
 <body>
     <div id="container">
-        <div id="display">
+        <img width="80" height="80" id="randomImage1" src="../static/sylvanian.png">
+        <img width="80" height="80" id="randomImage2" src="../static/sylvanian1.png">
+        <img width="80" height="80" id="randomImage3" src="../static/sylvanian2.png">
+        <img width="80" height="80" id="randomImage4" src="../static/sylvanian3.png">
+        <img width="80" height="80" id="randomImage5" src="../static/sylvanian4.png">
+        <img width="80" height="80" id="randomImage6" src="../static/sylvanian5.png">
+        <img width="80" height="80" id="randomImage7" src="../static/sylvanian6.png">
+        <img width="80" height="80" id="randomImage8" src="../static/sylvanian7.png">
+        <img width="80" height="80" id="randomImage9" src="../static/sylvanian8.png">
+        <img width="80" height="80" id="randomImage10" src="../static/sylvanian9.png">
+        <img width="80" height="80" id="randomImage11" src="../static/sylvanian10.png">
+        <img width="80" height="80" id="randomImage12" src="../static/sylvanian11.png">
+        <div id="chat">
             <div id="output"></div>
         </div>
         <div id="bar">
-            <input type="text" id="messageInput" placeholder="Type a message" onkeypress="checkEnter(event)" oninput="toggleSendButton()">
+            <input type="text" id="messageInput" placeholder="Type a message" onkeypress="checkEnter(event)"
+                oninput="toggleSendButton()">
             <button id="sendButton" onclick="sendMessage()">Send</button>
         </div>
     </div>
 </body>
+
 </html>
