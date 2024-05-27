@@ -6,37 +6,130 @@ app = FastAPI()
 html = """
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Chat</title>
-    </head>
-    <body>
-        <h1>WebSocket Chat</h1>
-        <h2>Your ID: <span id="ws-id"></span></h2>
-        <form action="" onsubmit="sendMessage(event)">
-            <input type="text" id="messageText" autocomplete="off"/>
-            <button>Send</button>
-        </form>
-        <ul id='messages'>
-        </ul>
-        <script>
-            const client_id = prompt("Enter your nickname");
-            document.querySelector("#ws-id").textContent = client_id;
-            const ws = new WebSocket(`wss://calculator-api-python.azurewebsites.net/ws/${client_id}`);
-            ws.onmessage = function(event) {
-                var messages = document.getElementById('messages')
-                var message = document.createElement('li')
-                var content = document.createTextNode(event.data)
-                message.appendChild(content)
-                messages.appendChild(message)
-            };
-            function sendMessage(event) {
-                var input = document.getElementById("messageText")
-                ws.send(input.value)
-                input.value = ''
-                event.preventDefault()
+<head>
+    <title>Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        #chat-container {
+            display: flex;
+            flex-direction: row;
+            flex: 1;
+        }
+        #messages {
+            flex: 3;
+            padding: 10px;
+            overflow-y: auto;
+            border-right: 1px solid #ddd;
+        }
+        #users {
+            flex: 1;
+            padding: 10px;
+            border-left: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+        #message-form {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+        #messageText {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+        }
+        .message {
+            display: flex;
+            margin: 5px 0;
+        }
+        .message.received {
+            justify-content: flex-start;
+        }
+        .message.sent {
+            justify-content: flex-end;
+        }
+        .message .content {
+            max-width: 70%;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .message.received .content {
+            background-color: #e1ffc7;
+        }
+        .message.sent .content {
+            background-color: #dcf8c6;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebSocket Chat</h1>
+    <h2>Your ID: <span id="ws-id"></span></h2>
+    <div id="chat-container">
+        <div id="messages"></div>
+        <div id="users">
+            <h3>Connected Users</h3>
+            <ul id="user-list"></ul>
+        </div>
+    </div>
+    <form id="message-form" action="" onsubmit="sendMessage(event)">
+        <input type="text" id="messageText" autocomplete="off" placeholder="Type a message..."/>
+        <button>Send</button>
+    </form>
+    <script>
+        var client_id = prompt("Enter your nickname");
+        document.querySelector("#ws-id").textContent = client_id;
+        var ws = new WebSocket(`ws://localhost:8000/ws/${client_id}`);
+        
+        ws.onmessage = function(event) {
+            const messages = document.getElementById('messages');
+            const message = document.createElement('div');
+            message.classList.add('message');
+            const content = document.createElement('div');
+            content.classList.add('content');
+            debugger
+            
+            if (event.data.startsWith("Connected clients:")) {
+                updateUsers(event.data);
+            } else {
+                const text = event.data;
+                if (text.startsWith(`${client_id} says:`)) {
+                    message.classList.add('sent');
+                } else {
+                    message.classList.add('received');
+                }
+                content.textContent = text;
+                message.appendChild(content);
+                messages.appendChild(message);
+                messages.scrollTop = messages.scrollHeight;
             }
-        </script>
-    </body>
+        };
+        
+        function sendMessage(event) {
+            const input = document.getElementById("messageText");
+            ws.send(input.value);
+            input.value = '';
+            event.preventDefault();
+        }
+        
+        function updateUsers(data) {
+            debugger
+            const userList = document.getElementById('user-list');
+            userList.innerHTML = '';
+            const users = data.replace('Connected clients: ', '').split(',');
+            users.forEach(user => {
+                const li = document.createElement('li');
+                li.textContent = user;
+                userList.appendChild(li);
+            });
+        }
+    </script>
+</body>
 </html>
 """
 
@@ -63,6 +156,7 @@ class ConnectionManager:
     async def broadcast(self, message: str):
         for connection in self.active_connections:
             await connection.send_text(message)
+            
     async def send_clients_list(self):
         clients_list = ",".join(map(str, self.users))
         for connection in self.active_connections:
@@ -85,5 +179,4 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
             data = await websocket.receive_text()
             await manager.broadcast(f"{client_id} says: {data}")
     except WebSocketDisconnect:
-        manager.disconnect(websocket, client_id)
-        await manager.broadcast(f"{client_id} left the chat")
+        await manager.disconnect(websocket, client_id)
