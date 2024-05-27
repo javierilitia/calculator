@@ -84,7 +84,7 @@ html = """
     <script>
         var client_id = prompt("Enter your nickname");
         document.querySelector("#ws-id").textContent = client_id;
-        var ws = new WebSocket(`ws://localhost:8000/ws/${client_id}`);
+        var ws = new WebSocket(`wss://calculator-api-python.azurewebsites.net/ws/${client_id}`);
         
         ws.onmessage = function(event) {
             const messages = document.getElementById('messages');
