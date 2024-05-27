@@ -1,62 +1,52 @@
-const userId = prompt("Enter your nickname");
-
-const ws = new WebSocket(
-  `wss://calculator-api-python.azurewebsites.net/ws/${userId}`
+var client_id = prompt("Enter your nickname");
+document.querySelector("#ws-id").textContent = client_id;
+var ws = new WebSocket(
+  `wss://calculator-api-python.azurewebsites.net/ws/${client_id}`
 );
 
 ws.onmessage = function (event) {
-  const outputDiv = document.getElementById("output");
-  const message = JSON.parse(event.data);
-  if (message.type === "user_list") {
-    updateUsersList(message.users);
+  const messages = document.getElementById("messages");
+  const message = document.createElement("div");
+  message.classList.add("message");
+  const content = document.createElement("div");
+  content.classList.add("content");
+
+  if (event.data.startsWith("Connected clients:")) {
+    updateUsers(event.data);
   } else {
-    const divElement = document.createElement("div");
-    divElement.className = "message received";
-    const messageElement = document.createElement("p");
-    messageElement.textContent = `${message.user}: ${message.data}`;
-    divElement.appendChild(messageElement);
-    outputDiv.appendChild(divElement);
+    const text = event.data;
+    if (text.startsWith(`${client_id} says:`)) {
+      message.classList.add("sent");
+    } else {
+      message.classList.add("received");
+    }
+    content.textContent = text;
+    message.appendChild(content);
+    messages.appendChild(message);
+    messages.scrollTop = messages.scrollHeight;
   }
 };
 
-function sendMessage() {
-  const messageInput = document.getElementById("messageInput");
-  const message = messageInput.value;
-  if (message.trim()) {
-    ws.send(message);
-    const outputDiv = document.getElementById("output");
-    const divElement = document.createElement("div");
-    divElement.className = "message sent";
-    const messageElement = document.createElement("p");
-    messageElement.textContent = `${message}`;
-    divElement.appendChild(messageElement);
-    outputDiv.appendChild(divElement);
-    outputDiv.scrollTop = outputDiv.scrollHeight;
-
-    messageInput.value = "";
-    toggleSendButton();
-  }
+function sendMessage(event) {
+  const input = document.getElementById("messageText");
+  ws.send(input.value);
+  input.value = "";
+  event.preventDefault();
 }
 
-function checkEnter(event) {
-  if (event.key === "Enter") {
-    sendMessage();
-    event.preventDefault(); // Prevents the default behavior of the Enter key
-  }
-}
-
-function toggleSendButton() {
-  const messageInput = document.getElementById("messageInput");
-  const sendButton = document.getElementById("sendButton");
-  if (messageInput.value.trim() === "") {
-    sendButton.style.display = "none";
-  } else {
-    sendButton.style.display = "block";
-  }
+function updateUsers(data) {
+  const userList = document.getElementById("user-list");
+  userList.innerHTML = "";
+  const users = data.replace("Connected clients: ", "").split(",");
+  users.forEach((user) => {
+    const li = document.createElement("li");
+    li.textContent = user;
+    userList.appendChild(li);
+  });
 }
 
 function getRandomPosition(element) {
-  const container = document.getElementById("container");
+  const container = document.getElementById("chat-container");
   const containerWidth = container.clientWidth;
   const containerHeight = container.clientHeight;
   const elementWidth = element.clientWidth;
@@ -73,7 +63,6 @@ function getRandomPosition(element) {
 }
 
 function toggleImage(id) {
-  debugger;
   const image = document.getElementById(id);
 
   if (image.style.display === "none" || image.style.display === "") {
@@ -88,16 +77,6 @@ function toggleImage(id) {
       image.style.display = "none";
     }, 10); // Espera a que termine la transición de opacidad
   }
-}
-
-function updateUsersList(users) {
-  const usersList = document.getElementById("usersList");
-  usersList.innerHTML = ""; // Clear the list
-  users.forEach((user) => {
-    const userItem = document.createElement("li");
-    userItem.textContent = user;
-    usersList.appendChild(userItem);
-  });
 }
 
 setInterval(() => toggleImage("randomImage1"), Math.random() * 5000);

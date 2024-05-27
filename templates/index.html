@@ -3,15 +3,12 @@
 
 <head>
     <title>Chat</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../static/styles.css">
-    <script src="../static/app.js"></script>
 </head>
 
 <body>
-    <div id="container">
-        <h1>Chat</h1>
+    <h2>Your nickname: <span id="ws-id"></span></h2>
+    <div id="chat-container">
         <img width="80" height="80" id="randomImage1" src="../static/sylvanian.png">
         <img width="80" height="80" id="randomImage2" src="../static/sylvanian1.png">
         <img width="80" height="80" id="randomImage3" src="../static/sylvanian2.png">
@@ -24,16 +21,17 @@
         <img width="80" height="80" id="randomImage10" src="../static/sylvanian9.png">
         <img width="80" height="80" id="randomImage11" src="../static/sylvanian10.png">
         <img width="80" height="80" id="randomImage12" src="../static/sylvanian11.png">
-        <div id="chat">
-            <div id="output"></div>
-        </div>
-        <ul id="usersList"></ul>
-        <div id="bar">
-            <input type="text" id="messageInput" placeholder="Type a message" onkeypress="checkEnter(event)"
-                oninput="toggleSendButton()">
-            <button id="sendButton" onclick="sendMessage()">Send</button>
+        <div id="messages"></div>
+        <div id="users">
+            <h3>Connected Users</h3>
+            <ul id="user-list"></ul>
         </div>
     </div>
+    <form id="message-form" action="" onsubmit="sendMessage(event)">
+        <input type="text" id="messageText" autocomplete="off" placeholder="Type a message..." />
+        <button>Send</button>
+    </form>
+    <script src="../static/app.js"></script>
 </body>
 
 </html>

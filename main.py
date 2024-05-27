@@ -1,137 +1,25 @@
 ﻿from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from fastapi.requests import Request
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
-html = """
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Chat</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-        #chat-container {
-            display: flex;
-            flex-direction: row;
-            flex: 1;
-        }
-        #messages {
-            flex: 3;
-            padding: 10px;
-            overflow-y: auto;
-            border-right: 1px solid #ddd;
-        }
-        #users {
-            flex: 1;
-            padding: 10px;
-            border-left: 1px solid #ddd;
-            background-color: #f9f9f9;
-        }
-        #message-form {
-            display: flex;
-            padding: 10px;
-            border-top: 1px solid #ddd;
-        }
-        #messageText {
-            flex: 1;
-            padding: 10px;
-            font-size: 16px;
-        }
-        .message {
-            display: flex;
-            margin: 5px 0;
-        }
-        .message.received {
-            justify-content: flex-start;
-        }
-        .message.sent {
-            justify-content: flex-end;
-        }
-        .message .content {
-            max-width: 70%;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        .message.received .content {
-            background-color: #e1ffc7;
-        }
-        .message.sent .content {
-            background-color: #dcf8c6;
-        }
-    </style>
-</head>
-<body>
-    <h1>WebSocket Chat</h1>
-    <h2>Your ID: <span id="ws-id"></span></h2>
-    <div id="chat-container">
-        <div id="messages"></div>
-        <div id="users">
-            <h3>Connected Users</h3>
-            <ul id="user-list"></ul>
-        </div>
-    </div>
-    <form id="message-form" action="" onsubmit="sendMessage(event)">
-        <input type="text" id="messageText" autocomplete="off" placeholder="Type a message..."/>
-        <button>Send</button>
-    </form>
-    <script>
-        var client_id = prompt("Enter your nickname");
-        document.querySelector("#ws-id").textContent = client_id;
-        var ws = new WebSocket(`wss://calculator-api-python.azurewebsites.net/ws/${client_id}`);
-        
-        ws.onmessage = function(event) {
-            const messages = document.getElementById('messages');
-            const message = document.createElement('div');
-            message.classList.add('message');
-            const content = document.createElement('div');
-            content.classList.add('content');
-            debugger
-            
-            if (event.data.startsWith("Connected clients:")) {
-                updateUsers(event.data);
-            } else {
-                const text = event.data;
-                if (text.startsWith(`${client_id} says:`)) {
-                    message.classList.add('sent');
-                } else {
-                    message.classList.add('received');
-                }
-                content.textContent = text;
-                message.appendChild(content);
-                messages.appendChild(message);
-                messages.scrollTop = messages.scrollHeight;
-            }
-        };
-        
-        function sendMessage(event) {
-            const input = document.getElementById("messageText");
-            ws.send(input.value);
-            input.value = '';
-            event.preventDefault();
-        }
-        
-        function updateUsers(data) {
-            debugger
-            const userList = document.getElementById('user-list');
-            userList.innerHTML = '';
-            const users = data.replace('Connected clients: ', '').split(',');
-            users.forEach(user => {
-                const li = document.createElement('li');
-                li.textContent = user;
-                userList.appendChild(li);
-            });
-        }
-    </script>
-</body>
-</html>
-"""
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # can alter with time
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/")
+async def read_root(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request, "title": "Home Page"})
 
 
 class ConnectionManager:
@@ -164,11 +52,6 @@ class ConnectionManager:
 
 
 manager = ConnectionManager()
-
-
-@app.get("/")
-async def get():
-    return HTMLResponse(html)
 
 
 @app.websocket("/ws/{client_id}")

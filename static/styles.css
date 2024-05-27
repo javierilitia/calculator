@@ -1,93 +1,76 @@
+@font-face {
+    font-family: 'genty';
+    src: url('/static/genty.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
 body {
+    font-family: 'genty';
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
     overflow: hidden;
 }
 
-#container {
+#chat-container {
     display: flex;
-    flex-direction: column;
-    height: 90vh;
-    margin: 0;
-    font-family: Arial, sans-serif;
-    align-items: center;
-    justify-content: center;
-}
-#chat {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    max-width: 600px;
-    height: 50%;
-    overflow: hidden;
-    border: 1px solid #d3d5ff;
-}
-#output {
-    display: flex;
-    flex-direction: column;
+    flex-direction: row;
     flex: 1;
-    overflow-y: auto;
-    padding: 10px;
-    box-sizing: border-box;
 }
+
+#messages {
+    flex: 3;
+    padding: 10px;
+    overflow-y: auto;
+    border-right: 1px solid #ddd;
+}
+
+#users {
+    flex: 1;
+    padding: 10px;
+    border-left: 1px solid #ddd;
+    background-color: #f9f9f9;
+}
+
+#message-form {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+}
+
+#messageText {
+    flex: 1;
+    padding: 10px;
+    font-size: 16px;
+}
+
 .message {
     display: flex;
-    flex-direction: row;
     margin: 5px 0;
-    max-width: 60%;
-    word-wrap: break-word;
 }
-.message p {
-    padding: 5px;
-    border-radius: 5px;
-}
-.received {
+
+.message.received {
     justify-content: flex-start;
 }
-.received p {
-    background-color: #d3d5ff;
+
+.message.sent {
+    justify-content: flex-end;
 }
-.sent {
-    align-self: flex-end;
-}
-.sent p {
-    background-color: #c1c4ff
-}
-#inputContainer {
-    display: flex;
+
+.message .content {
+    max-width: 70%;
     padding: 10px;
-    border-top: 1px solid #ccc;
-    box-sizing: border-box;
-    width: 100%;
-}
-#messageInput {
-    flex: 1;
-    padding: 10px;
-    border: none; /* Remove border */
-    margin-right: 0;
-    box-sizing: border-box;
-    border: 1px solid #d3d5ff;
-    border-radius: "5px 0 0 5px";
-}
-#messageInput:focus {
-    outline: none; /* Remove focus outline */
-}
-#sendButton {
-    padding: 10px;
-    border: none;
-    background-color: #d3d5ff;
-    color: white;
     border-radius: 5px;
-    cursor: pointer;
-    display: none;
 }
-#sendButton:hover {
-    background-color:#9599ff;
+
+.message.received .content {
+    background-color: #e1ffc7;
 }
-#bar {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    max-width: 600px;
-    overflow: hidden;
+
+.message.sent .content {
+    background-color: #dcf8c6;
 }
 
 #randomImage1,
@@ -106,15 +89,4 @@ body {
     position: absolute;
     display: none; /* Inicialmente ocultas */
     transition: opacity 0.5s ease;
-}
-
-@font-face {
-    font-family: 'genty';
-    src: url('/static/genty.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-}
-
-body {
-    font-family: 'genty';
 }
