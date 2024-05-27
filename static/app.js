@@ -7,12 +7,16 @@ const ws = new WebSocket(
 ws.onmessage = function (event) {
   const outputDiv = document.getElementById("output");
   const message = JSON.parse(event.data);
-  const divElement = document.createElement("div");
-  divElement.className = "message received";
-  const messageElement = document.createElement("p");
-  messageElement.textContent = `${message.user}: ${message.data}`;
-  divElement.appendChild(messageElement);
-  outputDiv.appendChild(divElement);
+  if (message.type === "user_list") {
+    updateUsersList(message.users);
+  } else {
+    const divElement = document.createElement("div");
+    divElement.className = "message received";
+    const messageElement = document.createElement("p");
+    messageElement.textContent = `${message.user}: ${message.data}`;
+    divElement.appendChild(messageElement);
+    outputDiv.appendChild(divElement);
+  }
 };
 
 function sendMessage() {
@@ -84,6 +88,16 @@ function toggleImage(id) {
       image.style.display = "none";
     }, 10); // Espera a que termine la transición de opacidad
   }
+}
+
+function updateUsersList(users) {
+  const usersList = document.getElementById("usersList");
+  usersList.innerHTML = ""; // Clear the list
+  users.forEach((user) => {
+    const userItem = document.createElement("li");
+    userItem.textContent = user;
+    usersList.appendChild(userItem);
+  });
 }
 
 setInterval(() => toggleImage("randomImage1"), Math.random() * 5000);

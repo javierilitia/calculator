@@ -3,12 +3,15 @@
 
 <head>
     <title>Chat</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../static/styles.css">
     <script src="../static/app.js"></script>
 </head>
 
 <body>
     <div id="container">
+        <h1>Chat</h1>
         <img width="80" height="80" id="randomImage1" src="../static/sylvanian.png">
         <img width="80" height="80" id="randomImage2" src="../static/sylvanian1.png">
         <img width="80" height="80" id="randomImage3" src="../static/sylvanian2.png">
@@ -24,6 +27,7 @@
         <div id="chat">
             <div id="output"></div>
         </div>
+        <ul id="usersList"></ul>
         <div id="bar">
             <input type="text" id="messageInput" placeholder="Type a message" onkeypress="checkEnter(event)"
                 oninput="toggleSendButton()">

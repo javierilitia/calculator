@@ -32,6 +32,12 @@ app.add_middleware(
 async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request, "title": "Home Page"})
 
+async def notify_users():
+    user_list = list(connected_users.keys())
+    message = json.dumps({"type": "user_list", "users": user_list})
+    for user_ws in connected_users.values():
+        await user_ws.send_text(message)
+
 
 @app.websocket("/ws/{user_id}")
 async def websocket_endpoint(user_id: str, websocket: WebSocket):
@@ -39,6 +45,7 @@ async def websocket_endpoint(user_id: str, websocket: WebSocket):
 
     # Store the WebSocket connection in the dictionary
     connected_users[user_id] = websocket
+    await notify_users()
 
     try:
         while True:
